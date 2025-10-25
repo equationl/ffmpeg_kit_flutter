@@ -265,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'libilbc':
           outputFile = File('${tempDir.path}/output.lbc');
           command =
-              '-y -i ${inputFile.path} -c:a libilbc -ar 8000 -b:a 15.2k ${outputFile.path}';
+              '-y -i ${inputFile.path} -ac 1 -c:a libilbc -ar 8000 -b:a 15.2k ${outputFile.path}';
           description = 'Encode with iLBC';
           break;
         case 'libvorbis':
@@ -277,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'opencore-amr':
           outputFile = File('${tempDir.path}/output.amr');
           command =
-              '-y -i ${inputFile.path} -c:a libopencore_amrnb -ar 8000 -b:a 12.2k ${outputFile.path}';
+              '-y -i ${inputFile.path} -ac 1 -c:a libopencore_amrnb -ar 8000 -b:a 12.2k ${outputFile.path}';
           description = 'Encode with OpenCORE AMR-NB';
           break;
         case 'opus':
@@ -301,7 +301,7 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'speex':
           outputFile = File('${tempDir.path}/output.spx');
           command =
-              '-y -i ${inputFile.path} -c:a libspeex -ar 16000 ${outputFile.path}';
+              '-y -i ${inputFile.path} -ac 1 -c:a libspeex -ar 16000 ${outputFile.path}';
           description = 'Encode with Speex';
           break;
         case 'twolame':
@@ -313,7 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'vo-amrwbenc':
           outputFile = File('${tempDir.path}/output.awb');
           command =
-              '-y -i ${inputFile.path} -c:a libvo_amrwbenc -ar 16000 -b:a 23.85k ${outputFile.path}';
+              '-y -i ${inputFile.path} -ac 1 -c:a libvo_amrwbenc -ar 16000 -b:a 23.85k ${outputFile.path}';
           description = 'Encode with AMR-WB';
           break;
         default:
