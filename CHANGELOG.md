@@ -1,3 +1,8 @@
+## 2.1.1
+
+* Added ProGuard rules to support release builds
+* Enabled ProGuard for Android release builds
+
 ## 2.1.0
 
 * Fixed the FFmpeg 8.0 compatibility issue across all platforms. The problem was that `all_channel_counts` was being set AFTER the filter was created, but FFmpeg 8.0 requires it to be set DURING filter creation.
