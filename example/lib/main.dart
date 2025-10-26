@@ -239,8 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
           break;
         case 'zimg':
           outputFile = File('${tempDir.path}/output_zscale.mp4');
-          command =
-              '-y -i ${inputFile.path} -vf "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709" ${outputFile.path}';
+          command = '-y -i ${inputFile.path} -vf "zscale=w=640:h=480" -c:a copy ${outputFile.path}';
           description = 'Apply filter with zimg (zscale)';
           break;
         default:

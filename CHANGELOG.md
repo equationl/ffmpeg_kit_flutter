@@ -1,3 +1,13 @@
+## 2.0.0
+
+* Upgraded FFmpeg to `v8.0.0`
+* Updated Android `ffmpeg-kit-full` dependency to `2.1.0`
+* Bumped iOS deployment target to `13.0`
+* Bumped macOS deployment target to `10.15`
+* Updated package version to `2.0.0` and updated README.md
+* Updated zimg example command
+* Updated `setup_ios.sh` and `setup_macos.sh` scripts to use `v8.0.0` and unzip to a `Frameworks` directory
+
 ## 1.1.0
 
 * Upgraded `freetype` from **2.13.0** to **2.13.3**
