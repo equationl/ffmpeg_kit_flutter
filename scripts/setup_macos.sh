@@ -137,13 +137,13 @@ FFMPEG_FRAMEWORKS=(
     "libswresample"
 )
 
-# Function to fix library paths in a binary (for arm64 architecture only)
+# Function to fix library paths in a binary (arm64 only, remove x86_64)
 fix_library_paths() {
     local binary="$1"
 
     # Check if the binary is a fat binary with arm64
     if lipo -info "$binary" 2>/dev/null | grep -q "arm64"; then
-        echo "  Fixing arm64 slice in: $(basename $binary)"
+        echo "  Fixing $(basename $binary) - keeping arm64 only"
 
         # Extract arm64 slice
         local temp_arm64="${binary}.arm64"
@@ -169,19 +169,8 @@ fix_library_paths() {
             fi
         done < <(otool -L "$temp_arm64" 2>/dev/null | grep "/opt/homebrew")
 
-        # Check if x86_64 exists
-        if lipo -info "$binary" 2>/dev/null | grep -q "x86_64"; then
-            # Extract x86_64 slice
-            local temp_x86_64="${binary}.x86_64"
-            lipo -extract x86_64 "$binary" -output "$temp_x86_64" 2>/dev/null
-
-            # Create universal binary
-            lipo -create "$temp_arm64" "$temp_x86_64" -output "$binary" 2>/dev/null
-            rm -f "$temp_x86_64"
-        else
-            # Only arm64
-            mv "$temp_arm64" "$binary"
-        fi
+        # Replace original with arm64 only (remove x86_64)
+        mv "$temp_arm64" "$binary"
         rm -f "$temp_arm64"
     fi
 }
