@@ -38,20 +38,20 @@ Pod::Spec.new do |s|
                                  'Frameworks/libavutil.framework',
                                  'Frameworks/libswresample.framework',
                                  'Frameworks/libswscale.framework'
-    ss.osx.vendored_libraries = 'Frameworks/dylibs/libfontconfig.1.dylib',
-                                'Frameworks/dylibs/libfreetype.6.dylib',
-                                'Frameworks/dylibs/libfribidi.0.dylib',
-                                'Frameworks/dylibs/libharfbuzz.0.dylib',
-                                'Frameworks/dylibs/libglib-2.0.0.dylib',
-                                'Frameworks/dylibs/libintl.8.dylib',
-                                'Frameworks/dylibs/libpcre2-8.0.dylib',
-                                'Frameworks/dylibs/libgraphite2.3.dylib',
-                                'Frameworks/dylibs/libsamplerate.0.dylib',
-                                'Frameworks/dylibs/libsrt.1.5.dylib',
-                                'Frameworks/dylibs/libiconv.2.dylib',
-                                'Frameworks/dylibs/libpng16.16.dylib',
-                                'Frameworks/dylibs/libssl.3.dylib',
-                                'Frameworks/dylibs/libcrypto.3.dylib'
+    ss.osx.vendored_libraries = 'Frameworks/libfontconfig.1.dylib',
+                                'Frameworks/libfreetype.6.dylib',
+                                'Frameworks/libfribidi.0.dylib',
+                                'Frameworks/libharfbuzz.0.dylib',
+                                'Frameworks/libglib-2.0.0.dylib',
+                                'Frameworks/libintl.8.dylib',
+                                'Frameworks/libpcre2-8.0.dylib',
+                                'Frameworks/libgraphite2.3.dylib',
+                                'Frameworks/libsamplerate.0.dylib',
+                                'Frameworks/libsrt.1.5.dylib',
+                                'Frameworks/libiconv.2.dylib',
+                                'Frameworks/libpng16.16.dylib',
+                                'Frameworks/libssl.3.dylib',
+                                'Frameworks/libcrypto.3.dylib'
     ss.osx.frameworks = 'AudioToolbox', 'CoreMedia'
     ss.libraries = 'z', 'bz2', 'c++', 'iconv'
     ss.osx.deployment_target = '10.15'

@@ -65,10 +65,6 @@ xcrun bitcode_strip -r Frameworks/libswscale.framework/libswscale -o Frameworks/
 # ============================================================
 
 FRAMEWORKS_DIR="Frameworks"
-DYLIBS_DIR="$FRAMEWORKS_DIR/dylibs"
-
-# Create directory for bundled dylibs
-mkdir -p "$DYLIBS_DIR"
 
 # Define Homebrew libraries to bundle
 # These are libraries that are NOT available as system libraries
@@ -89,14 +85,15 @@ HOMEBREW_LIBS=(
     "libcrypto.3.dylib:openssl@3"
 )
 
-# Copy Homebrew dylibs to Frameworks/dylibs
-echo "Copying Homebrew libraries to Frameworks/dylibs..."
+# Copy Homebrew dylibs directly to Frameworks/ (not in dylibs subdirectory)
+# CocoaPods flattens vendored_libraries, so we cannot use subdirectories
+echo "Copying Homebrew libraries to Frameworks/..."
 for lib_info in "${HOMEBREW_LIBS[@]}"; do
     lib_name="${lib_info%%:*}"
     lib_path="/opt/homebrew/opt/${lib_info#*:}/lib/$lib_name"
     if [ -f "$lib_path" ]; then
-        cp -L "$lib_path" "$DYLIBS_DIR/$lib_name"
-        chmod 644 "$DYLIBS_DIR/$lib_name"
+        cp -L "$lib_path" "$FRAMEWORKS_DIR/$lib_name"
+        chmod 644 "$FRAMEWORKS_DIR/$lib_name"
         echo "  Copied: $lib_name"
     else
         echo "  WARNING: Not found: $lib_path"
@@ -105,25 +102,27 @@ done
 
 # Define path replacements
 # Format: "old_path:new_path"
+# Note: dylibs are placed directly in Frameworks/ (not dylibs/ subdirectory)
+# because CocoaPods flattens vendored_libraries
 PATH_REPLACEMENTS=(
     "/opt/homebrew/opt/zlib/lib/libz.1.dylib:/usr/lib/libz.1.dylib"
-    "/opt/homebrew/opt/fontconfig/lib/libfontconfig.1.dylib:@rpath/dylibs/libfontconfig.1.dylib"
-    "/opt/homebrew/opt/freetype/lib/libfreetype.6.dylib:@rpath/dylibs/libfreetype.6.dylib"
-    "/opt/homebrew/opt/fribidi/lib/libfribidi.0.dylib:@rpath/dylibs/libfribidi.0.dylib"
-    "/opt/homebrew/opt/harfbuzz/lib/libharfbuzz.0.dylib:@rpath/dylibs/libharfbuzz.0.dylib"
-    "/opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib:@rpath/dylibs/libglib-2.0.0.dylib"
-    "/opt/homebrew/opt/gettext/lib/libintl.8.dylib:@rpath/dylibs/libintl.8.dylib"
-    "/opt/homebrew/opt/pcre2/lib/libpcre2-8.0.dylib:@rpath/dylibs/libpcre2-8.0.dylib"
-    "/opt/homebrew/opt/graphite2/lib/libgraphite2.3.dylib:@rpath/dylibs/libgraphite2.3.dylib"
-    "/opt/homebrew/opt/libsamplerate/lib/libsamplerate.0.dylib:@rpath/dylibs/libsamplerate.0.dylib"
-    "/opt/homebrew/opt/srt/lib/libsrt.1.5.dylib:@rpath/dylibs/libsrt.1.5.dylib"
-    "/opt/homebrew/opt/libiconv/lib/libiconv.2.dylib:@rpath/dylibs/libiconv.2.dylib"
-    "/opt/homebrew/opt/libpng/lib/libpng16.16.dylib:@rpath/dylibs/libpng16.16.dylib"
-    "/opt/homebrew/opt/openssl@3/lib/libssl.3.dylib:@rpath/dylibs/libssl.3.dylib"
-    "/opt/homebrew/opt/openssl@3/lib/libcrypto.3.dylib:@rpath/dylibs/libcrypto.3.dylib"
+    "/opt/homebrew/opt/fontconfig/lib/libfontconfig.1.dylib:@rpath/libfontconfig.1.dylib"
+    "/opt/homebrew/opt/freetype/lib/libfreetype.6.dylib:@rpath/libfreetype.6.dylib"
+    "/opt/homebrew/opt/fribidi/lib/libfribidi.0.dylib:@rpath/libfribidi.0.dylib"
+    "/opt/homebrew/opt/harfbuzz/lib/libharfbuzz.0.dylib:@rpath/libharfbuzz.0.dylib"
+    "/opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib:@rpath/libglib-2.0.0.dylib"
+    "/opt/homebrew/opt/gettext/lib/libintl.8.dylib:@rpath/libintl.8.dylib"
+    "/opt/homebrew/opt/pcre2/lib/libpcre2-8.0.dylib:@rpath/libpcre2-8.0.dylib"
+    "/opt/homebrew/opt/graphite2/lib/libgraphite2.3.dylib:@rpath/libgraphite2.3.dylib"
+    "/opt/homebrew/opt/libsamplerate/lib/libsamplerate.0.dylib:@rpath/libsamplerate.0.dylib"
+    "/opt/homebrew/opt/srt/lib/libsrt.1.5.dylib:@rpath/libsrt.1.5.dylib"
+    "/opt/homebrew/opt/libiconv/lib/libiconv.2.dylib:@rpath/libiconv.2.dylib"
+    "/opt/homebrew/opt/libpng/lib/libpng16.16.dylib:@rpath/libpng16.16.dylib"
+    "/opt/homebrew/opt/openssl@3/lib/libssl.3.dylib:@rpath/libssl.3.dylib"
+    "/opt/homebrew/opt/openssl@3/lib/libcrypto.3.dylib:@rpath/libcrypto.3.dylib"
     # Handle Cellar paths (different Homebrew installations may use different paths)
-    "/opt/homebrew/Cellar/openssl@3/*/lib/libssl.3.dylib:@rpath/dylibs/libssl.3.dylib"
-    "/opt/homebrew/Cellar/openssl@3/*/lib/libcrypto.3.dylib:@rpath/dylibs/libcrypto.3.dylib"
+    "/opt/homebrew/Cellar/openssl@3/*/lib/libssl.3.dylib:@rpath/libssl.3.dylib"
+    "/opt/homebrew/Cellar/openssl@3/*/lib/libcrypto.3.dylib:@rpath/libcrypto.3.dylib"
 )
 
 # FFmpeg frameworks to fix
@@ -163,8 +162,8 @@ fix_library_paths() {
                 cellar_path=$(echo "$line" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
                 lib_name=$(basename "$cellar_path")
                 # Check if we have this lib in our dylibs
-                if [ -f "$DYLIBS_DIR/$lib_name" ]; then
-                    install_name_tool -change "$cellar_path" "@rpath/dylibs/$lib_name" "$temp_arm64" 2>/dev/null
+                if [ -f "\$FRAMEWORKS_DIR/$lib_name" ]; then
+                    install_name_tool -change "$cellar_path" "@rpath/$lib_name" "$temp_arm64" 2>/dev/null
                 fi
             fi
         done < <(otool -L "$temp_arm64" 2>/dev/null | grep "/opt/homebrew")
@@ -193,12 +192,12 @@ echo "Fixing bundled dylibs..."
 
 for lib_info in "${HOMEBREW_LIBS[@]}"; do
     lib_name="${lib_info%%:*}"
-    dylib_path="$DYLIBS_DIR/$lib_name"
+    dylib_path="\$FRAMEWORKS_DIR/$lib_name"
     if [ -f "$dylib_path" ]; then
         echo "Processing $lib_name..."
 
         # First, change the library ID to use @rpath
-        install_name_tool -id "@rpath/dylibs/$lib_name" "$dylib_path" 2>/dev/null
+        install_name_tool -id "@rpath/$lib_name" "$dylib_path" 2>/dev/null
 
         # Then fix all dependency paths
         for replacement in "${PATH_REPLACEMENTS[@]}"; do
@@ -213,8 +212,8 @@ for lib_info in "${HOMEBREW_LIBS[@]}"; do
                 cellar_path=$(echo "$line" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
                 dep_lib_name=$(basename "$cellar_path")
                 # Check if we have this lib in our dylibs
-                if [ -f "$DYLIBS_DIR/$dep_lib_name" ]; then
-                    install_name_tool -change "$cellar_path" "@rpath/dylibs/$dep_lib_name" "$dylib_path" 2>/dev/null
+                if [ -f "\$FRAMEWORKS_DIR/$dep_lib_name" ]; then
+                    install_name_tool -change "$cellar_path" "@rpath/$dep_lib_name" "$dylib_path" 2>/dev/null
                 fi
             fi
         done < <(otool -L "$dylib_path" 2>/dev/null | grep "/opt/homebrew")
