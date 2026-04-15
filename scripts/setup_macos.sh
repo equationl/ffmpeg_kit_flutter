@@ -220,5 +220,35 @@ for lib_info in "${HOMEBREW_LIBS[@]}"; do
     fi
 done
 
+# Re-sign all modified binaries (frameworks and dylibs)
+# This is required because install_name_tool invalidates the code signature
+echo ""
+echo "Re-signing all frameworks and dylibs..."
+
+# Sign all dylibs
+for lib_info in "${HOMEBREW_LIBS[@]}"; do
+    lib_name="${lib_info%%:*}"
+    dylib_path="$FRAMEWORKS_DIR/$lib_name"
+    if [ -f "$dylib_path" ]; then
+        codesign --remove-signature "$dylib_path" 2>/dev/null
+        codesign -s - "$dylib_path" 2>/dev/null && echo "  Signed: $lib_name"
+    fi
+done
+
+# Sign all frameworks
+for framework in "${FFMPEG_FRAMEWORKS[@]}"; do
+    framework_path="$FRAMEWORKS_DIR/$framework.framework/$framework"
+    if [ -f "$framework_path" ]; then
+        codesign --remove-signature "$framework_path" 2>/dev/null
+        codesign -s - "$FRAMEWORKS_DIR/$framework.framework" 2>/dev/null && echo "  Signed: $framework.framework"
+    fi
+done
+
+# Also sign ffmpegkit framework
+if [ -f "$FRAMEWORKS_DIR/ffmpegkit.framework/ffmpegkit" ]; then
+    codesign --remove-signature "$FRAMEWORKS_DIR/ffmpegkit.framework/ffmpegkit" 2>/dev/null
+    codesign -s - "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null && echo "  Signed: ffmpegkit.framework"
+fi
+
 echo ""
 echo "Done! Frameworks have been fixed for distribution."
