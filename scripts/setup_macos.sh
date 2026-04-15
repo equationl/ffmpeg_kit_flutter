@@ -161,8 +161,8 @@ fix_library_paths() {
             if [[ "$line" == *"/opt/homebrew/Cellar/"* ]]; then
                 cellar_path=$(echo "$line" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
                 lib_name=$(basename "$cellar_path")
-                # Check if we have this lib in our dylibs
-                if [ -f "\$FRAMEWORKS_DIR/$lib_name" ]; then
+                # Check if we have this lib in our Frameworks
+                if [ -f "$FRAMEWORKS_DIR/$lib_name" ]; then
                     install_name_tool -change "$cellar_path" "@rpath/$lib_name" "$temp_arm64" 2>/dev/null
                 fi
             fi
@@ -192,7 +192,7 @@ echo "Fixing bundled dylibs..."
 
 for lib_info in "${HOMEBREW_LIBS[@]}"; do
     lib_name="${lib_info%%:*}"
-    dylib_path="\$FRAMEWORKS_DIR/$lib_name"
+    dylib_path="$FRAMEWORKS_DIR/$lib_name"
     if [ -f "$dylib_path" ]; then
         echo "Processing $lib_name..."
 
@@ -211,8 +211,8 @@ for lib_info in "${HOMEBREW_LIBS[@]}"; do
             if [[ "$line" == *"/opt/homebrew/Cellar/"* ]]; then
                 cellar_path=$(echo "$line" | sed 's/^[[:space:]]*//' | cut -d' ' -f1)
                 dep_lib_name=$(basename "$cellar_path")
-                # Check if we have this lib in our dylibs
-                if [ -f "\$FRAMEWORKS_DIR/$dep_lib_name" ]; then
+                # Check if we have this lib in our Frameworks
+                if [ -f "$FRAMEWORKS_DIR/$dep_lib_name" ]; then
                     install_name_tool -change "$cellar_path" "@rpath/$dep_lib_name" "$dylib_path" 2>/dev/null
                 fi
             fi
