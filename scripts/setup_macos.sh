@@ -230,23 +230,23 @@ for lib_info in "${HOMEBREW_LIBS[@]}"; do
     lib_name="${lib_info%%:*}"
     dylib_path="$FRAMEWORKS_DIR/$lib_name"
     if [ -f "$dylib_path" ]; then
-        codesign --remove-signature "$dylib_path" 2>/dev/null
+        codesign --remove-signature "$dylib_path" 2>/dev/null || true
         codesign -s - "$dylib_path" 2>/dev/null && echo "  Signed: $lib_name"
     fi
 done
 
-# Sign all frameworks
+# Sign all FFmpeg frameworks
 for framework in "${FFMPEG_FRAMEWORKS[@]}"; do
-    framework_path="$FRAMEWORKS_DIR/$framework.framework/$framework"
-    if [ -f "$framework_path" ]; then
-        codesign --remove-signature "$framework_path" 2>/dev/null
-        codesign -s - "$FRAMEWORKS_DIR/$framework.framework" 2>/dev/null && echo "  Signed: $framework.framework"
+    framework_bundle="$FRAMEWORKS_DIR/$framework.framework"
+    if [ -d "$framework_bundle" ]; then
+        codesign --remove-signature "$framework_bundle" 2>/dev/null || true
+        codesign -s - "$framework_bundle" 2>/dev/null && echo "  Signed: $framework.framework"
     fi
 done
 
 # Also sign ffmpegkit framework
-if [ -f "$FRAMEWORKS_DIR/ffmpegkit.framework/ffmpegkit" ]; then
-    codesign --remove-signature "$FRAMEWORKS_DIR/ffmpegkit.framework/ffmpegkit" 2>/dev/null
+if [ -d "$FRAMEWORKS_DIR/ffmpegkit.framework" ]; then
+    codesign --remove-signature "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null || true
     codesign -s - "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null && echo "  Signed: ffmpegkit.framework"
 fi
 
