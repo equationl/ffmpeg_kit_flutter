@@ -174,6 +174,21 @@ fix_library_paths() {
     fi
 }
 
+# Function to fix framework structure after lipo extraction
+# lipo creates a file in the root directory, but frameworks need a symlink
+fix_framework_structure() {
+    local framework="$1"
+    local framework_bundle="$FRAMEWORKS_DIR/$framework.framework"
+
+    # If there's a binary file in the root (not a symlink), fix it
+    if [ -f "$framework_bundle/$framework" ] && [ ! -L "$framework_bundle/$framework" ]; then
+        # Move the binary to Versions/A/ (replace existing)
+        mv "$framework_bundle/$framework" "$framework_bundle/Versions/A/$framework"
+        # Create symlink in root pointing to Versions/Current/
+        ln -s "Versions/Current/$framework" "$framework_bundle/$framework"
+    fi
+}
+
 echo ""
 echo "Fixing FFmpeg frameworks..."
 
@@ -183,6 +198,7 @@ for framework in "${FFMPEG_FRAMEWORKS[@]}"; do
     if [ -f "$framework_path" ]; then
         echo "Processing $framework..."
         fix_library_paths "$framework_path"
+        fix_framework_structure "$framework"
     fi
 done
 
@@ -240,14 +256,14 @@ for framework in "${FFMPEG_FRAMEWORKS[@]}"; do
     framework_bundle="$FRAMEWORKS_DIR/$framework.framework"
     if [ -d "$framework_bundle" ]; then
         codesign --remove-signature "$framework_bundle" 2>/dev/null || true
-        codesign -s - "$framework_bundle" 2>/dev/null && echo "  Signed: $framework.framework"
+        codesign --deep -f -s - "$framework_bundle" 2>/dev/null && echo "  Signed: $framework.framework"
     fi
 done
 
 # Also sign ffmpegkit framework
 if [ -d "$FRAMEWORKS_DIR/ffmpegkit.framework" ]; then
     codesign --remove-signature "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null || true
-    codesign -s - "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null && echo "  Signed: ffmpegkit.framework"
+    codesign --deep -f -s - "$FRAMEWORKS_DIR/ffmpegkit.framework" 2>/dev/null && echo "  Signed: ffmpegkit.framework"
 fi
 
 echo ""
